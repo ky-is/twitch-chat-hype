@@ -25,9 +25,9 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
           // console.time('populateMessageData')
           const messageDataArray = populateMessageData()
           const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
-          document.getElementById('_wave-mps').innerText = Math.round(messagesPerSecond * 100) / 100
-
           // console.timeEnd('populateMessageData')
+          document.getElementById('_wave-mps').innerText = messagesPerSecond.toFixed(1)
+
           for (let idx = 0; idx < BOX_COUNT; idx += 1) {
             const boxEl = waveBoxes[idx]
             const boxData = messageDataArray[idx]
@@ -47,9 +47,10 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
                 titleText = title
               }
               scoreText = `${Math.round(score * 100)}%`
-              const hue = (360 + 200 - Math.floor(score * 280)) % 360
+              const hue = (360 + 200 - Math.floor(score * 300)) % 360
               const weight = 300 + Math.floor(score * 700)
-              scoreEl.style.color = `hsl(${hue}, 90%, 50%)`
+              const saturation = 50 + Math.round(score * 50)
+              scoreEl.style.color = `hsl(${hue}, ${saturation}%, 50%)`
               scoreEl.style['font-weight'] = weight
             }
             titleEl.style['background-image'] = titleUrl || ''
