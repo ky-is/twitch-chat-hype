@@ -5,10 +5,8 @@ if (document.body.classList.contains('ember-application')) {
 const BOX_COUNT = 6
 
 let liveChannel = false
-
-let observingSidebar = false
+let observingSidebarEl = null
 let waveBoxes = null
-
 let lastUpdate = Date.now()
 
 const sidebarObserver = new window.MutationObserver((mutations, observing) => {
@@ -113,10 +111,9 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
       liveChannel = true
     }
   }
-  if (!sidebarEl) {
-    observingSidebar = false
-  } else if (!observingSidebar) {
-    observingSidebar = true
+  if (sidebarEl && sidebarEl !== observingSidebarEl) {
+    console.log(sidebarEl, observingSidebarEl)
+    observingSidebarEl = sidebarEl
     sidebarObserver.disconnect()
     resetMessages()
     sidebarObserver.observe(sidebarEl, { childList: true, subtree: false })
