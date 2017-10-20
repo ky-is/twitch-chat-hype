@@ -2,19 +2,19 @@ body:not(._wave-off) .channel-page__video-player--theatre-mode .player-video vid
   position: unset !important;
 }
 
-#_wave-container {
+#_wave {
   display: none;
 }
 
-body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave-container {
+body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave {
+  display: block;
   position: absolute;
-  margin-top: -5px;
   width: 100%;
-  height: 128px;
-  /*background: red;*/
-  justify-content: space-around;
+}
 
+#_wave-container {
   display: flex;
+  justify-content: space-around;
 }
 
 #_wave-container > div {
@@ -30,12 +30,20 @@ body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave-container 
   min-width: 56px;
   height: 56px;
   line-height: 56px;
-  margin: 2px;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }
 ._wave-score {
-  /*font-weight: 900;*/
   font-size: 20px;
+}
+
+#_wave-stats {
+  text-align: right;
+  margin-right: 6px;
+  color: #666;
+}
+
+#_wave-stats > span {
+  color: #ccc;
 }

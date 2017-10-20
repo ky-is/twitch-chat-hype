@@ -2,6 +2,7 @@ let userChatMessages = []
 let userMessageCount = 0
 let startIndex = 0
 let messagesSinceUpdate = 0
+let messageTimestamps = []
 
 const MAX_MESSAGE_COUNT = 99
 const MESSAGE_POWER = 3
@@ -24,6 +25,7 @@ const resetMessages = function() {
   userMessageCount = 0
   startIndex = 0
   messagesSinceUpdate = 0
+  messageTimestamps = []
 }
 
 //CHAT
@@ -37,6 +39,7 @@ const addMessage = function(message) {
   }
   userChatMessages.push(message)
   messagesSinceUpdate += 1
+  messageTimestamps.push(Date.now())
 }
 
 const parseMessageContainer = function(messageContainer, liveChannel) {
@@ -95,6 +98,26 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
 }
 
 //POPULATE
+
+const messagesPerSecondInLast = function(seconds, timestamp) {
+  let messageCount = 0
+  let secondsAgo = seconds
+  let timestampStart = timestamp - secondsAgo * 1000
+  const firstTimestamp = messageTimestamps[0]
+  if (firstTimestamp > timestampStart) {
+    timestampStart = firstTimestamp
+    secondsAgo = (timestamp - firstTimestamp) / 1000
+  }
+  for (let idx = messageTimestamps.length - 1; idx >= 0; idx -= 1) {
+    const messageAt = messageTimestamps[idx]
+    if (messageAt < timestampStart) {
+      messageTimestamps = messageTimestamps.slice(idx)
+      break
+    }
+    messageCount += 1
+  }
+  return messageCount / secondsAgo
+}
 
 const populateMessageData = function() {
   messagesSinceUpdate = 0

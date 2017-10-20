@@ -24,6 +24,9 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
         if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 2 * 1000) {
           // console.time('populateMessageData')
           const messageDataArray = populateMessageData()
+          const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
+          document.getElementById('_wave-mps').innerText = Math.round(messagesPerSecond * 100) / 100
+
           // console.timeEnd('populateMessageData')
           for (let idx = 0; idx < BOX_COUNT; idx += 1) {
             const boxEl = waveBoxes[idx]
@@ -69,11 +72,13 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
   if (newChannel !== syncChannel) {
     setSyncChannel(newChannel)
   }
-  let waveContainer = document.getElementById('_wave-container')
-  if (!waveContainer) {
+  let waveEl = document.getElementById('_wave')
+  if (!waveEl) {
     const videoContainer = document.querySelector('.video-player__container')
     if (videoContainer) {
-      waveContainer = document.createElement('div')
+      waveEl = document.createElement('div')
+      waveEl.id = '_wave'
+      const waveContainer = document.createElement('div')
       waveContainer.id = '_wave-container'
       for (let idx = 0; idx < BOX_COUNT; idx += 1) {
         const messageBox = document.createElement('div')
@@ -87,7 +92,13 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
         messageBox.appendChild(document.createElement('div'))
         waveContainer.appendChild(messageBox)
       }
-      videoContainer.appendChild(waveContainer)
+      waveEl.appendChild(waveContainer)
+      const waveStats = document.createElement('div')
+      waveStats.id = '_wave-stats'
+      waveStats.innerHTML = '<span id="_wave-mps"></span> messages per second'
+      waveEl.appendChild(waveStats)
+
+      videoContainer.appendChild(waveEl)
       waveBoxes = waveContainer.children
     }
   }
