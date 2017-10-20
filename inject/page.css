@@ -1,0 +1,41 @@
+body:not(._wave-off) .channel-page__video-player--theatre-mode .player-video video {
+  position: unset !important;
+}
+
+#_wave-container {
+  display: none;
+}
+
+body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave-container {
+  position: absolute;
+  margin-top: -5px;
+  width: 100%;
+  height: 128px;
+  /*background: red;*/
+  justify-content: space-around;
+
+  display: flex;
+}
+
+#_wave-container > div {
+  margin: 0 4px;
+  text-align: center;
+}
+
+._wave-title {
+  font-variant: small-caps;
+  letter-spacing: 1px;
+
+  font-size: 32px;
+  min-width: 56px;
+  height: 56px;
+  line-height: 56px;
+  margin: 2px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+._wave-score {
+  /*font-weight: 900;*/
+  font-size: 20px;
+}
