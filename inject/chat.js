@@ -14,11 +14,11 @@ const PERFECT_SCORE = 24502500
 // console.log(newPerfectScore)
 
 const EMOJI_REGEX = /[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/gu
-const REPEAT_REGEX = /(\w)\1\1+/g
-const PUNCTUATION_REGEX = /[,\/!&;:`~()\?]/g
+const REPEAT_REGEX = /(.)\1\1+/g
+const PUNCTUATION_REGEX = /[,&;:()]/g
 
-const IGNORE_WORDS = [ 'an', 'and', 'am', 'are', 'at', 'be', 'been', 'for', 'had', 'has', 'in', 'is', 'it', 'its', 'me', 'my', 'of', 'the', 'they', 'this', 'to', 'you', 'was', 'were', 'will' ]
-const EMOJI_APPENDAGES = [ '/', '//', 'b' ] //TODO
+const IGNORE_WORDS = [ 'an', 'and', 'am', 'are', 'at', 'be', 'been', 'can', 'does', 'for', 'had', 'has', 'in', 'is', 'it', 'its', 'me', 'my', 'of', 'the', 'they', 'that', 'this', 'to', 'you', 'was', 'were', 'will', 'with' ]
+const EMOJI_APPENDAGES = [ '/', '//', 'b', '==c' ] //TODO
 
 const resetMessages = function() {
   userChatMessages = []
@@ -58,15 +58,34 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
         words.add('<message deleted>')
         continue
       }
-      string = string.replace('rap god', 'rapgod').replace(EMOJI_REGEX, (match, a, b) => {
+      string = string.replace(EMOJI_REGEX, (match, a, b) => {
         emotes.add(match)
         return ''
       }).replace(REPEAT_REGEX, (match, character) => {
         return `${character}${character}`
       }).replace(PUNCTUATION_REGEX, ' ')
-      for (let word of string.split(' ')) {
+
+      const splitWords = string.split(' ')
+      const splitCount = splitWords.length
+      for (let idx = 0; idx < splitCount; idx += 1) {
+        let word = splitWords[idx]
         if (word.length <= 1 || IGNORE_WORDS.includes(word)) {
           continue
+        }
+        if (idx < splitCount - 1) {
+          let combineNext = false
+          const nextWord = splitWords[idx + 1]
+          if (!isNaN(word)) {
+            combineNext = true
+          } else if (word === 'rap') {
+            combineNext = nextWord === 'god'
+          } else if (nextWord === 'sama' || nextWord === 'chan') {
+            combineNext = true
+          }
+          if (combineNext) {
+            idx += 1
+            word = `${word}${nextWord}`
+          }
         }
         if (word[0] === '@') {
           word = word.slice(1)
