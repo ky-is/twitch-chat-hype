@@ -15,7 +15,7 @@ const onBackgroundSync = function (background) {
     }
     const disable = background.disabled
     if (disable !== undefined) {
-      document.body.classList.toggle('_wave-off', disable)
+      document.body.classList.toggle('_hype-off', disable)
       channelDisabled = disable
     }
   }

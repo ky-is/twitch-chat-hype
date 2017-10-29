@@ -1,28 +1,28 @@
-body:not(._wave-off) .channel-page__video-player--theatre-mode .player-video video {
+body:not(._hype-off) .channel-page__video-player--theatre-mode .player-video video {
   position: unset !important;
 }
 
-#_wave {
+#_hype {
   display: none;
 }
 
-body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave {
+body:not(._hype-off) .channel-page__video-player--theatre-mode #_hype {
   display: block;
   position: absolute;
   width: 100%;
 }
 
-#_wave-container {
+#_hype-container {
   display: flex;
   justify-content: space-around;
 }
 
-#_wave-container > div {
+#_hype-container > div {
   margin: 0 4px;
   text-align: center;
 }
 
-._wave-title {
+._hype-title {
   font-variant: small-caps;
   letter-spacing: 1px;
 
@@ -34,16 +34,16 @@ body:not(._wave-off) .channel-page__video-player--theatre-mode #_wave {
   background-position: center;
   background-repeat: no-repeat;
 }
-._wave-score {
+._hype-score {
   font-size: 20px;
 }
 
-#_wave-stats {
+#_hype-stats {
   text-align: right;
   margin-right: 6px;
   color: #666;
 }
 
-#_wave-stats > span {
+#_hype-stats > span {
   color: #ccc;
 }

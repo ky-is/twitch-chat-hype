@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "Twitch Wave",
-  "description": "The Twitch chat experience for streams high-viewer streams",
+  "name": "Twitch Hype",
+  "description": "The Twitch chat experience for high-viewer streams",
   "version": "1.0",
 
   "background": {

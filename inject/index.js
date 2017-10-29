@@ -1,12 +1,12 @@
 if (document.body.classList.contains('ember-application')) {
-  window.alert('Please upgrade to the new Twitch beta to use the Twitch Wave extension')
+  window.alert('Please upgrade to the new Twitch beta to use the Twitch Hype extension')
 }
 
 const BOX_COUNT = 6
 
 let liveChannel = false
 let observingSidebarEl = null
-let waveBoxes = null
+let hypeBoxes = null
 let lastUpdate = Date.now()
 
 const sidebarObserver = new window.MutationObserver((mutations, observing) => {
@@ -17,17 +17,17 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
     for (const chatMessage of mutation.addedNodes) {
       parseMessageContainer(liveChannel ? chatMessage : chatMessage.querySelector('.qa-mod-message'), liveChannel)
 
-      if (waveBoxes) {
+      if (hypeBoxes) {
         const timestamp = Date.now()
         if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 1500) {
           // console.time('populateMessageData')
           const messageDataArray = populateMessageData()
           const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
           // console.timeEnd('populateMessageData')
-          document.getElementById('_wave-mps').innerText = messagesPerSecond.toFixed(1)
+          document.getElementById('_hype-mps').innerText = messagesPerSecond.toFixed(1)
 
           for (let idx = 0; idx < BOX_COUNT; idx += 1) {
-            const boxEl = waveBoxes[idx]
+            const boxEl = hypeBoxes[idx]
             const boxData = messageDataArray[idx]
             let titleText, titleUrl, scoreText
             const titleEl = boxEl.children[0]
@@ -71,34 +71,34 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
   if (newChannel !== syncChannel) {
     setSyncChannel(newChannel)
   }
-  let waveEl = document.getElementById('_wave')
-  if (!waveEl) {
+  let hypeEl = document.getElementById('_hype')
+  if (!hypeEl) {
     const videoContainer = document.querySelector('.video-player__container')
     if (videoContainer) {
-      waveEl = document.createElement('div')
-      waveEl.id = '_wave'
-      const waveContainer = document.createElement('div')
-      waveContainer.id = '_wave-container'
+      hypeEl = document.createElement('div')
+      hypeEl.id = '_hype'
+      const hypeContainer = document.createElement('div')
+      hypeContainer.id = '_hype-container'
       for (let idx = 0; idx < BOX_COUNT; idx += 1) {
         const messageBox = document.createElement('div')
-        messageBox.className = '_wave-box'
+        messageBox.className = '_hype-box'
         const titleDiv = document.createElement('div')
         const scoreDiv = document.createElement('div')
-        titleDiv.className = '_wave-title'
-        scoreDiv.className = '_wave-score'
+        titleDiv.className = '_hype-title'
+        scoreDiv.className = '_hype-score'
         messageBox.appendChild(titleDiv)
         messageBox.appendChild(scoreDiv)
         messageBox.appendChild(document.createElement('div'))
-        waveContainer.appendChild(messageBox)
+        hypeContainer.appendChild(messageBox)
       }
-      waveEl.appendChild(waveContainer)
-      const waveStats = document.createElement('div')
-      waveStats.id = '_wave-stats'
-      waveStats.innerHTML = '<span id="_wave-mps"></span> messages per second'
-      waveEl.appendChild(waveStats)
+      hypeEl.appendChild(hypeContainer)
+      const hypeStats = document.createElement('div')
+      hypeStats.id = '_hype-stats'
+      hypeStats.innerHTML = '<span id="_hype-mps"></span> messages per second'
+      hypeEl.appendChild(hypeStats)
 
-      videoContainer.appendChild(waveEl)
-      waveBoxes = waveContainer.children
+      videoContainer.appendChild(hypeEl)
+      hypeBoxes = hypeContainer.children
     }
   }
 
