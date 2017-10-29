@@ -16,11 +16,10 @@ const PERFECT_SCORE = 6175225 //SAMPLE 60:3348900 70:6175225 80:10497600 99:2450
 const EMOJI_REGEX = /[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/gu
 const REPEAT_REGEX = /(.)\1\1+/g
 const PUNCTUATION_REGEX = /[,&;:()\[\]]/g
-// const ALPHA_REGEX = /[a-z]/
 
 const IGNORE_WORDS = [ 'and', 'am', 'are', 'at', 'be', 'been', 'can', 'does', 'for', 'had', 'has', 'in', 'is', 'it', 'its', 'me', 'of', 'they', 'that', 'this', 'to', 'you', 'was', 'were', 'will', 'with' ]
-const EMOJI_APPENDAGES = [ '/', '//', 'b', '==c' ] //TODO
-const PREFIX_WORDS = [ 'a', 'an', 'by', 'go', 'he', 'im', 'its', 'lets', 'oh', 'my', 'no', 'she', 'so', 'take', 'the' ]
+const EMOTE_APPENDAGES = [ '/', '//', 'b', '==c' ] //TODO
+const PREFIX_WORDS = [ 'a', 'an', 'by', 'go', 'he', 'im', 'its', 'lets', 'oh', 'our', 'my', 'no', 'she', 'so', 'take', 'the' ]
 const SUFFIX_WORDS = [ 'chan', 'kun', 'san', 'sama' ]
 
 const resetMessages = function() {
@@ -60,7 +59,7 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
         emotes.add(match)
         return ''
       }).replace(REPEAT_REGEX, (match, character) => {
-        return `${character}${character}`
+        return match === 'www' ? match : `${character}${character}`
       }).replace(PUNCTUATION_REGEX, ' ').trim()
 
       if (string.length <= 1) {
@@ -94,6 +93,7 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
             let separator
             if (!isNaN(word)) {
               combineCount = 1
+              separator = ' '
             } else if (PREFIX_WORDS.includes(word)) {
               separator = ' '
               combineCount = PREFIX_WORDS.includes(nextWord) ? 2 : 1
@@ -112,8 +112,6 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
           if (word[0] === '@') {
             word = word.slice(1)
           }
-          // if (ALPHA_REGEX.test(word)) {
-          // }
 
           if (word.length > 1) {
             words.add(word)

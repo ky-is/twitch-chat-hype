@@ -19,7 +19,7 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
 
       if (waveBoxes) {
         const timestamp = Date.now()
-        if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 2 * 1000) {
+        if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 1500) {
           // console.time('populateMessageData')
           const messageDataArray = populateMessageData()
           const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
@@ -46,7 +46,7 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
               }
               scoreText = `${Math.round(score * 100)}%`
               const hue = (360 + 200 - Math.floor(score * 300)) % 360
-              const weight = 300 + Math.floor(score * 700)
+              const weight = 300 + Math.ceil(score * 600)
               const saturation = 50 + Math.round(score * 50)
               scoreEl.style.color = `hsl(${hue}, ${saturation}%, 50%)`
               scoreEl.style['font-weight'] = weight
@@ -112,7 +112,6 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
     }
   }
   if (sidebarEl && sidebarEl !== observingSidebarEl) {
-    console.log(sidebarEl, observingSidebarEl)
     observingSidebarEl = sidebarEl
     sidebarObserver.disconnect()
     resetMessages()
