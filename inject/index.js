@@ -63,6 +63,9 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
 })
 
 const pageObserver = new window.MutationObserver((mutations, observing) => {
+  if (channelDisabled) {
+    return
+  }
   const channelNameElement = document.querySelector('.channel-header__user h5')
   if (!channelNameElement) {
     return
@@ -71,6 +74,23 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
   if (newChannel !== syncChannel) {
     setSyncChannel(newChannel)
   }
+  addHype()
+})
+
+const toggleHype = function(enabled) {
+  if (enabled) {
+    addHype()
+  } else {
+    const hypeEl = document.getElementById('_hype')
+    if (hypeEl) {
+      hypeEl.remove()
+    }
+    sidebarObserver.disconnect()
+    observingSidebarEl = null
+  }
+}
+
+const addHype = function() {
   let hypeEl = document.getElementById('_hype')
   if (!hypeEl) {
     const videoContainer = document.querySelector('.video-player__container')
@@ -117,7 +137,7 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
     resetMessages()
     sidebarObserver.observe(sidebarEl, { childList: true, subtree: false })
   }
-})
+}
 
 waitForSelector('main', (nextElement) => {
   pageObserver.observe(nextElement, { childList: true, subtree: true })

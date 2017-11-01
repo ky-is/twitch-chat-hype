@@ -15,8 +15,11 @@ const onBackgroundSync = function (background) {
     }
     const disable = background.disabled
     if (disable !== undefined) {
-      document.body.classList.toggle('_hype-off', disable)
-      channelDisabled = disable
+      if (disable !== channelDisabled) {
+        document.body.classList.toggle('_hype-off', disable)
+        channelDisabled = disable
+        toggleHype(!disable)
+      }
     }
   }
 }
