@@ -19,7 +19,7 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
 
       if (hypeBoxes) {
         const timestamp = Date.now()
-        if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 1500) {
+        if (messagesSinceUpdate > 2 && timestamp - lastUpdate > 2000) {
           // console.time('populateMessageData')
           const messageDataArray = populateMessageData()
           const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
