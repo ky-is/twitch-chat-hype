@@ -62,10 +62,9 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
         return match === 'www' ? match : `${character}${character}`
       }).replace(PUNCTUATION_REGEX, ' ').trim()
 
-      if (string.length <= 1) {
+      if (string.length < 1) {
         continue
       }
-
       const splitWords = string.split(' ')
       let isSpacedLetters = true
       for (const word of splitWords) {
