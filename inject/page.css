@@ -11,6 +11,9 @@ body:not(._hype-off) .channel-page__video-player--theatre-mode #_hype {
   position: absolute;
   width: 100%;
 }
+.player-alert {
+  z-index: 1;
+}
 
 #_hype-container {
   display: flex;
