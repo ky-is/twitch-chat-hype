@@ -1,5 +1,5 @@
 if (document.body.classList.contains('ember-application')) {
-  window.alert('Please upgrade to the new Twitch beta to use the Twitch Hype extension')
+  console.error('Please upgrade to the new Twitch beta to use the Twitch Hype extension')
 }
 
 const BOX_COUNT = 6
@@ -8,6 +8,7 @@ let liveChannel = false
 let observingSidebarEl = null
 let hypeBoxes = null
 let lastUpdate = Date.now()
+let mainElement = null
 
 const sidebarObserver = new window.MutationObserver((mutations, observing) => {
   if (channelDisabled) {
@@ -63,10 +64,7 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
 })
 
 const pageObserver = new window.MutationObserver((mutations, observing) => {
-  if (channelDisabled) {
-    return
-  }
-  const channelNameElement = document.querySelector('.channel-header__user h5')
+  const channelNameElement = mainElement.querySelector('.channel-header__user h5')
   if (!channelNameElement) {
     return
   }
@@ -74,7 +72,9 @@ const pageObserver = new window.MutationObserver((mutations, observing) => {
   if (newChannel !== syncChannel) {
     setSyncChannel(newChannel)
   }
-  addHype()
+  if (!channelDisabled) {
+    addHype()
+  }
 })
 
 const toggleHype = function(enabled) {
@@ -140,5 +140,6 @@ const addHype = function() {
 }
 
 waitForSelector('main', (nextElement) => {
-  pageObserver.observe(nextElement, { childList: true, subtree: true })
+  mainElement = nextElement
+  pageObserver.observe(mainElement, { childList: true, subtree: false })
 }, 999)
