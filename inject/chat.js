@@ -118,16 +118,21 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
         }
       }
     } else if (tag === 'DIV') {
-      const emoteContainer = child.children[0]
-      const emoteUrl = emoteContainer && emoteContainer.src
-      if (emoteUrl) {
-        const urlSegments = emoteUrl.split('/')
-        const emoteId = parseInt(urlSegments[urlSegments.length - 2])
-        emotes.add(`${emoteContainer.alt},${emoteId}`)
-      } else if (child.getAttribute('data-a-target') === 'chat-message-mention') {
+      const targetName = child.getAttribute('data-a-target')
+      if (targetName === 'emote-name') {
+        const emoteContainer = child.querySelector(':scope > img')
+        const emoteUrl = emoteContainer && emoteContainer.src
+        if (emoteUrl) {
+          const urlSegments = emoteUrl.split('/')
+          const emoteId = parseInt(urlSegments[urlSegments.length - 2])
+          emotes.add(`${emoteContainer.alt},${emoteId}`)
+        } else {
+          console.log('Unknown emote source', child)
+        }
+      } else if (targetName === 'chat-message-mention') {
         words.add(child.innerText.slice(1).toLowerCase())
       } else {
-        console.log('Unknown chat div', child)
+        console.log('Unknown chat div', targetName, child)
       }
     } else if (tag === 'A') {
       // console.log('Ignore links', child)
