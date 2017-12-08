@@ -1,4 +1,4 @@
-body:not(._hype-off) .channel-page__video-player--theatre-mode .player-video video {
+body:not(._hype-off) .video-player--theatre video {
   position: unset !important;
 }
 
@@ -6,7 +6,7 @@ body:not(._hype-off) .channel-page__video-player--theatre-mode .player-video vid
   display: none;
 }
 
-body:not(._hype-off) .channel-page__video-player--theatre-mode #_hype {
+body:not(._hype-off) .video-player--theatre #_hype {
   display: block;
   position: absolute;
   width: 100%;

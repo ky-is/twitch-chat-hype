@@ -1,7 +1,3 @@
-if (document.body.classList.contains('ember-application')) {
-  console.error('Please upgrade to the new Twitch beta to use the Twitch Hype extension')
-}
-
 const BOX_COUNT = 6
 
 let liveChannel = false
