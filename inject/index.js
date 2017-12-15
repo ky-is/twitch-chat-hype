@@ -122,7 +122,7 @@ const addHype = function() {
   if (sidebarEl) {
     liveChannel = false
   } else {
-    sidebarEl = document.querySelector('.right-column .chat-list__lines')
+    sidebarEl = document.querySelector('.right-column .chat-list__lines .tw-full-height')
     if (sidebarEl) {
       liveChannel = true
     }
@@ -137,5 +137,5 @@ const addHype = function() {
 
 waitForSelector('main', (nextElement) => {
   mainElement = nextElement
-  pageObserver.observe(mainElement, { childList: true, subtree: false })
+  pageObserver.observe(mainElement, { childList: true, subtree: true })
 }, 999)
