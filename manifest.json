@@ -3,20 +3,20 @@
 
   "name": "Twitch Hype",
   "description": "The Twitch chat experience for high-viewer streams",
-  "version": "1.3",
+  "version": "1.3.1",
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [ "background.js" ]
   },
   "browser_action": {
     "default_icon": "images/icon-off.png"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.twitch.tv/*", "*://twitch.tv/*"],
-      "exclude_matches": ["*://player.twitch.tv/*"],
-      "css": ["inject/page.css"],
-      "js": ["inject/util.js", "inject/sync.js", "inject/chat.js", "inject/index.js"]
+      "matches": [ "*://*.twitch.tv/*", "*://twitch.tv/*" ],
+      "exclude_matches": ["*://player.twitch.tv/*" ],
+      "css": [ "inject/page.css" ],
+      "js": [ "inject/util.js", "inject/sync.js", "inject/chat.js", "inject/index.js" ]
     }
   ],
   "icons": {
