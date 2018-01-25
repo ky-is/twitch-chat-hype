@@ -53,8 +53,21 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
   }
   for (let childIndex = liveChannel ? 3 : 0; childIndex < messageChildren.length; childIndex += 1) {
     const child = messageChildren[childIndex]
-    const tag = child.tagName
-    if (tag === 'SPAN') {
+    const tagName = child.tagName
+    const targetName = child.getAttribute('data-a-target')
+    if (targetName === 'emote-name') {
+      const emoteContainer = child.querySelector(':scope > img')
+      const emoteUrl = emoteContainer && emoteContainer.src
+      if (emoteUrl) {
+        const urlSegments = emoteUrl.split('/')
+        const emoteId = parseInt(urlSegments[urlSegments.length - 2])
+        emotes.add(`${emoteContainer.alt},${emoteId}`)
+      } else {
+        console.log('Unknown emote source', child)
+      }
+    } else if (targetName === 'chat-message-mention') {
+      words.add(child.innerText.slice(1).toLowerCase())
+    } else if (tagName === 'SPAN') {
       const string = child.innerText.toLowerCase().replace('woah', 'whoa').replace(EMOJI_REGEX, (match, a, b) => {
         emotes.add(match)
         return ''
@@ -117,27 +130,10 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
           }
         }
       }
-    } else if (tag === 'DIV') {
-      const targetName = child.getAttribute('data-a-target')
-      if (targetName === 'emote-name') {
-        const emoteContainer = child.querySelector(':scope > img')
-        const emoteUrl = emoteContainer && emoteContainer.src
-        if (emoteUrl) {
-          const urlSegments = emoteUrl.split('/')
-          const emoteId = parseInt(urlSegments[urlSegments.length - 2])
-          emotes.add(`${emoteContainer.alt},${emoteId}`)
-        } else {
-          console.log('Unknown emote source', child)
-        }
-      } else if (targetName === 'chat-message-mention') {
-        words.add(child.innerText.slice(1).toLowerCase())
-      } else {
-        console.log('Unknown chat div', targetName, child)
-      }
-    } else if (tag === 'A') {
+    } else if (tagName === 'A') {
       // console.log('Ignore links', child)
     } else {
-      console.log('Unknown chat tag:', tag, child)
+      console.log('Unknown chat tag:', tagName, child)
     }
   }
   addMessage([ words, emotes ])
