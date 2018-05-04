@@ -4,6 +4,7 @@ body:not(._hype-off) .video-player--theatre video {
 
 #_hype {
   display: none;
+  pointer-events: none;
 }
 
 body:not(._hype-off) .video-player--theatre #_hype {
