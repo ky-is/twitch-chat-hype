@@ -168,7 +168,7 @@ const populateMessageData = function() {
   messagesSinceUpdate = 0
   const popularMessages = {}
   for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
-    const score = Math.pow(MAX_MESSAGE_COUNT - (idx - startIndex), MESSAGE_POWER)
+    const score = Math.pow(idx - startIndex, MESSAGE_POWER)
     const messageArray = userChatMessages[idx]
     for (const messageType of messageArray) {
       for (const messageText of messageType) {
