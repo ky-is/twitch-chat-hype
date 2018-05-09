@@ -1,53 +1,53 @@
 body:not(._hype-off) .video-player--theatre video {
-  position: unset !important;
+	position: unset !important;
 }
 
 #_hype {
-  display: none;
-  pointer-events: none;
+	display: none;
+	pointer-events: none;
 }
 
 body:not(._hype-off) .video-player--theatre #_hype {
-  display: block;
-  position: absolute;
-  width: 100%;
+	display: block;
+	position: absolute;
+	width: 100%;
 }
 .player-alert {
-  z-index: 1;
+	z-index: 1;
 }
 
 #_hype-container {
-  display: flex;
-  justify-content: space-around;
+	display: flex;
+	justify-content: space-around;
 }
 
 #_hype-container > div {
-  margin: 0 4px;
-  text-align: center;
+	margin: 0 4px;
+	text-align: center;
 }
 
 ._hype-title {
-  font-variant: small-caps !important;
-  letter-spacing: 1px !important;
-  font-size: 32px !important;
+	font-variant: small-caps !important;
+	letter-spacing: 1px !important;
+	font-size: 32px !important;
 
-  line-height: 56px !important;
-  min-width: 56px;
-  height: 56px;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
+	line-height: 56px !important;
+	min-width: 56px;
+	height: 56px;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 ._hype-score {
-  font-size: 20px !important;
+	font-size: 20px !important;
 }
 
 #_hype-stats {
-  text-align: right;
-  margin-right: 6px;
-  color: #666;
+	text-align: right;
+	margin-right: 6px;
+	color: #666;
 }
 
 #_hype-stats > span {
-  color: #ccc;
+	color: #ccc;
 }

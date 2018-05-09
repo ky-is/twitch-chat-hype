@@ -23,192 +23,192 @@ const PREFIX_WORDS = [ 'a', 'an', 'by', 'go', 'he', 'im', 'its', 'lets', 'oh', '
 const SUFFIX_WORDS = [ 'chan', 'kun', 'san', 'sama' ]
 
 const resetMessages = function() {
-  userChatMessages = []
-  userMessageCount = 0
-  startIndex = 0
-  messagesSinceUpdate = 0
-  messageTimestamps = []
+	userChatMessages = []
+	userMessageCount = 0
+	startIndex = 0
+	messagesSinceUpdate = 0
+	messageTimestamps = []
 }
 
 //CHAT
 
 const addMessage = function(message) {
-  if (userMessageCount < MAX_MESSAGE_COUNT) {
-    userMessageCount += 1
-  } else {
-    delete userChatMessages[startIndex]
-    startIndex += 1
-  }
-  userChatMessages.push(message)
-  messagesSinceUpdate += 1
-  messageTimestamps.push(Date.now())
+	if (userMessageCount < MAX_MESSAGE_COUNT) {
+		userMessageCount += 1
+	} else {
+		delete userChatMessages[startIndex]
+		startIndex += 1
+	}
+	userChatMessages.push(message)
+	messagesSinceUpdate += 1
+	messageTimestamps.push(Date.now())
 }
 
 const parseMessageContainer = function(messageContainer, liveChannel) {
-  const words = new Set()
-  const emotes = new Set()
-  const messageChildren = messageContainer.children
-  if (!messageChildren) {
-    return
-  }
-  for (let childIndex = liveChannel ? 3 : 0; childIndex < messageChildren.length; childIndex += 1) {
-    const child = messageChildren[childIndex]
-    const tagName = child.tagName
-    const targetName = child.getAttribute('data-a-target')
-    if (targetName === 'emote-name') {
-      const emoteContainer = child.querySelector(':scope > img')
-      const emoteUrl = emoteContainer && emoteContainer.src
-      if (emoteUrl) {
-        const urlSegments = emoteUrl.split('/')
-        const emoteId = parseInt(urlSegments[urlSegments.length - 2])
-        emotes.add(`${emoteContainer.alt},${emoteId}`)
-      } else {
-        console.log('Unknown emote source', child)
-      }
-    } else if (targetName === 'chat-message-mention') {
-      words.add(child.innerText.slice(1).toLowerCase())
-    } else if (tagName === 'SPAN') {
-      const string = child.innerText.toLowerCase().replace('woah', 'whoa').replace(EMOJI_REGEX, (match, a, b) => {
-        emotes.add(match)
-        return ''
-      }).replace(REPEAT_REGEX, (match, character) => {
-        return match === 'www' ? match : `${character}${character}`
-      }).replace(PUNCTUATION_REGEX, ' ').trim()
+	const words = new Set()
+	const emotes = new Set()
+	const messageChildren = messageContainer.children
+	if (!messageChildren) {
+		return
+	}
+	for (let childIndex = liveChannel ? 3 : 0; childIndex < messageChildren.length; childIndex += 1) {
+		const child = messageChildren[childIndex]
+		const tagName = child.tagName
+		const targetName = child.getAttribute('data-a-target')
+		if (targetName === 'emote-name') {
+			const emoteContainer = child.querySelector(':scope > img')
+			const emoteUrl = emoteContainer && emoteContainer.src
+			if (emoteUrl) {
+				const urlSegments = emoteUrl.split('/')
+				const emoteId = parseInt(urlSegments[urlSegments.length - 2])
+				emotes.add(`${emoteContainer.alt},${emoteId}`)
+			} else {
+				console.log('Unknown emote source', child)
+			}
+		} else if (targetName === 'chat-message-mention') {
+			words.add(child.innerText.slice(1).toLowerCase())
+		} else if (tagName === 'SPAN') {
+			const string = child.innerText.toLowerCase().replace('woah', 'whoa').replace(EMOJI_REGEX, (match, a, b) => {
+				emotes.add(match)
+				return ''
+			}).replace(REPEAT_REGEX, (match, character) => {
+				return match === 'www' ? match : `${character}${character}`
+			}).replace(PUNCTUATION_REGEX, ' ').trim()
 
-      if (string.length < 1) {
-        continue
-      }
-      const splitWords = string.split(' ')
-      let isSpacedLetters = true
-      for (const word of splitWords) {
-        if (word.length > 1) {
-          isSpacedLetters = false
-          break
-        }
-      }
-      if (isSpacedLetters) {
-        words.add(splitWords.join(''))
-        continue
-      }
-      words.add(string)
+			if (string.length < 1) {
+				continue
+			}
+			const splitWords = string.split(' ')
+			let isSpacedLetters = true
+			for (const word of splitWords) {
+				if (word.length > 1) {
+					isSpacedLetters = false
+					break
+				}
+			}
+			if (isSpacedLetters) {
+				words.add(splitWords.join(''))
+				continue
+			}
+			words.add(string)
 
-      const splitCount = splitWords.length
-      if (splitCount > 1) {
-        for (let splitIndex = 0; splitIndex < splitCount; splitIndex += 1) {
-          let word = splitWords[splitIndex]
-          if (IGNORE_WORDS.includes(word)) {
-            continue
-          }
-          if (splitIndex < splitCount - 1) {
-            let combineCount = 0
-            const nextWord = splitWords[splitIndex + 1]
-            let separator
-            if (!isNaN(word)) {
-              combineCount = 1
-              separator = ' '
-            } else if (PREFIX_WORDS.includes(word)) {
-              separator = ' '
-              combineCount = PREFIX_WORDS.includes(nextWord) ? 2 : 1
-            } else if (SUFFIX_WORDS.includes(nextWord)) {
-              separator = '-'
-              combineCount = 1
-            }
-            if (combineCount > 0) {
-              for (let combineIndex = 0; splitIndex < splitCount && combineIndex < combineCount; combineIndex += 1) {
-                splitIndex += 1
-                word = `${word}${separator || ''}${nextWord}`
-              }
-              continue
-            }
-          }
-          if (word[0] === '@') {
-            word = word.slice(1)
-          }
+			const splitCount = splitWords.length
+			if (splitCount > 1) {
+				for (let splitIndex = 0; splitIndex < splitCount; splitIndex += 1) {
+					let word = splitWords[splitIndex]
+					if (IGNORE_WORDS.includes(word)) {
+						continue
+					}
+					if (splitIndex < splitCount - 1) {
+						let combineCount = 0
+						const nextWord = splitWords[splitIndex + 1]
+						let separator
+						if (!isNaN(word)) {
+							combineCount = 1
+							separator = ' '
+						} else if (PREFIX_WORDS.includes(word)) {
+							separator = ' '
+							combineCount = PREFIX_WORDS.includes(nextWord) ? 2 : 1
+						} else if (SUFFIX_WORDS.includes(nextWord)) {
+							separator = '-'
+							combineCount = 1
+						}
+						if (combineCount > 0) {
+							for (let combineIndex = 0; splitIndex < splitCount && combineIndex < combineCount; combineIndex += 1) {
+								splitIndex += 1
+								word = `${word}${separator || ''}${nextWord}`
+							}
+							continue
+						}
+					}
+					if (word[0] === '@') {
+						word = word.slice(1)
+					}
 
-          if (word.length > 1) {
-            words.add(word)
-          }
-        }
-      }
-    } else if (tagName === 'A') {
-      // console.log('Ignore links', child)
-    } else {
-      console.log('Unknown chat tag:', tagName, child)
-    }
-  }
-  addMessage([ words, emotes ])
+					if (word.length > 1) {
+						words.add(word)
+					}
+				}
+			}
+		} else if (tagName === 'A') {
+			// console.log('Ignore links', child)
+		} else {
+			console.log('Unknown chat tag:', tagName, child)
+		}
+	}
+	addMessage([ words, emotes ])
 }
 
 //POPULATE
 
 const messagesPerSecondInLast = function(seconds, timestamp) {
-  let messageCount = 0
-  let secondsAgo = seconds
-  let timestampStart = timestamp - secondsAgo * 1000
-  const firstTimestamp = messageTimestamps[0]
-  if (firstTimestamp > timestampStart) {
-    timestampStart = firstTimestamp
-    secondsAgo = (timestamp - timestampStart) / 1000
-    if (secondsAgo < 1) {
-      return 0
-    }
-  }
-  for (let idx = messageTimestamps.length - 1; idx >= 0; idx -= 1) {
-    const messageAt = messageTimestamps[idx]
-    if (messageAt < timestampStart) {
-      messageTimestamps = messageTimestamps.slice(idx)
-      break
-    }
-    messageCount += 1
-  }
-  return messageCount / secondsAgo
+	let messageCount = 0
+	let secondsAgo = seconds
+	let timestampStart = timestamp - secondsAgo * 1000
+	const firstTimestamp = messageTimestamps[0]
+	if (firstTimestamp > timestampStart) {
+		timestampStart = firstTimestamp
+		secondsAgo = (timestamp - timestampStart) / 1000
+		if (secondsAgo < 1) {
+			return 0
+		}
+	}
+	for (let idx = messageTimestamps.length - 1; idx >= 0; idx -= 1) {
+		const messageAt = messageTimestamps[idx]
+		if (messageAt < timestampStart) {
+			messageTimestamps = messageTimestamps.slice(idx)
+			break
+		}
+		messageCount += 1
+	}
+	return messageCount / secondsAgo
 }
 
 const populateMessageData = function() {
-  messagesSinceUpdate = 0
-  const popularMessages = {}
-  for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
-    const score = Math.pow(idx - startIndex, MESSAGE_POWER)
-    const messageArray = userChatMessages[idx]
-    for (const messageType of messageArray) {
-      for (const messageText of messageType) {
-        const messageData = popularMessages[messageText]
-        if (messageData) {
-          messageData[0] += score
-          messageData[1] = true
-        } else {
-          popularMessages[messageText] = [ score, false ]
-        }
-      }
-    }
-  }
-  for (const message in popularMessages) {
-    const split = message.split(' ')
-    if (split.length <= 1) {
-      continue
-    }
-    const wholeMessageData = popularMessages[message]
-    const scoreThreshold = wholeMessageData[0] * 2
-    for (const individualWord of split) {
-      const individualWordScore = popularMessages[individualWord]
-      if (individualWordScore && individualWordScore[0] < scoreThreshold) {
-        delete popularMessages[individualWord]
-      }
-    }
-    const combinedMessage = popularMessages[split.join('')]
-    if (combinedMessage) {
-      combinedMessage[0] += wholeMessageData[0]
-      combinedMessage[1] = true
-      delete popularMessages[message]
-    }
-  }
-  let result = []
-  for (const message in popularMessages) {
-    const messageData = popularMessages[message]
-    if (messageData[1]) {
-      result.push([ message, messageData[0] / PERFECT_SCORE ])
-    }
-  }
-  result.sort((a, b) => { return b[1] - a[1] })
-  return result
+	messagesSinceUpdate = 0
+	const popularMessages = {}
+	for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
+		const score = Math.pow(idx - startIndex, MESSAGE_POWER)
+		const messageArray = userChatMessages[idx]
+		for (const messageType of messageArray) {
+			for (const messageText of messageType) {
+				const messageData = popularMessages[messageText]
+				if (messageData) {
+					messageData[0] += score
+					messageData[1] = true
+				} else {
+					popularMessages[messageText] = [ score, false ]
+				}
+			}
+		}
+	}
+	for (const message in popularMessages) {
+		const split = message.split(' ')
+		if (split.length <= 1) {
+			continue
+		}
+		const wholeMessageData = popularMessages[message]
+		const scoreThreshold = wholeMessageData[0] * 2
+		for (const individualWord of split) {
+			const individualWordScore = popularMessages[individualWord]
+			if (individualWordScore && individualWordScore[0] < scoreThreshold) {
+				delete popularMessages[individualWord]
+			}
+		}
+		const combinedMessage = popularMessages[split.join('')]
+		if (combinedMessage) {
+			combinedMessage[0] += wholeMessageData[0]
+			combinedMessage[1] = true
+			delete popularMessages[message]
+		}
+	}
+	let result = []
+	for (const message in popularMessages) {
+		const messageData = popularMessages[message]
+		if (messageData[1]) {
+			result.push([ message, messageData[0] / PERFECT_SCORE ])
+		}
+	}
+	result.sort((a, b) => { return b[1] - a[1] })
+	return result
 }
