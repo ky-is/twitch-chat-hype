@@ -12,7 +12,12 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
   }
   for (const mutation of mutations) {
     for (const chatMessage of mutation.addedNodes) {
-      parseMessageContainer(liveChannel ? chatMessage : chatMessage.querySelector('.qa-mod-message'), liveChannel)
+      const el = liveChannel ? chatMessage : chatMessage.querySelector('.video-chat__message > span:last-child')
+      if (!el) {
+        console.log('No element for node', liveChannel, chatMessage)
+        continue
+      }
+      parseMessageContainer(el, liveChannel)
 
       if (hypeBoxes) {
         const timestamp = Date.now()
