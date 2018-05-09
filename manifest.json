@@ -3,7 +3,7 @@
 
 	"name": "Twitch Hype",
 	"description": "The Twitch chat experience for high-viewer streams",
-	"version": "1.5",
+	"version": "1.5.1",
 
 	"background": {
 		"scripts": [ "background.js" ]
