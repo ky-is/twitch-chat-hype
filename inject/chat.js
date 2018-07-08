@@ -15,7 +15,8 @@ const PERFECT_SCORE = 6175225 //SAMPLE 60:3348900 70:6175225 80:10497600 99:2450
 
 const EMOJI_REGEX = /[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/gu
 const REPEAT_REGEX = /(.)\1\1+/g
-const PUNCTUATION_REGEX = /[,&;:()\[\]]/g
+const PUNCTUATION_REGEX = /[,&;()\[\]]/g
+const TRAILING_PERIODS_REGEX = /\.+$/
 
 const IGNORE_WORDS = [ 'and', 'am', 'are', 'at', 'be', 'been', 'can', 'does', 'for', 'had', 'has', 'in', 'is', 'it', 'its', 'me', 'of', 'they', 'that', 'this', 'to', 'you', 'was', 'were', 'will', 'with' ]
 const EMOTE_APPENDAGES = [ '/', '//', 'b', '==c' ] //TODO
@@ -51,7 +52,11 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
 	if (!messageChildren) {
 		return
 	}
-	for (let childIndex = liveChannel ? 3 : 0; childIndex < messageChildren.length; childIndex += 1) {
+	const childCount = messageChildren.length
+	const contentCount = childCount - (liveChannel ? 3 : 0)
+	let characterCount = 0
+	const textArray = []
+	for (let childIndex = liveChannel ? 3 : 0; childIndex < childCount; childIndex += 1) {
 		const child = messageChildren[childIndex]
 		const tagName = child.tagName
 		const targetName = child.getAttribute('data-a-target')
@@ -75,67 +80,107 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
 				return match === 'www' ? match : `${character}${character}`
 			}).replace(PUNCTUATION_REGEX, ' ').trim()
 
-			if (string.length < 1) {
+			const stringLen = string.length
+			if (stringLen < 1) {
 				continue
 			}
-			const splitWords = string.split(' ')
-			let isSpacedLetters = true
-			for (const word of splitWords) {
-				if (word.length > 1) {
-					isSpacedLetters = false
-					break
-				}
-			}
-			if (isSpacedLetters) {
-				words.add(splitWords.join(''))
-				continue
-			}
-			words.add(string)
-
-			const splitCount = splitWords.length
-			if (splitCount > 1) {
-				for (let splitIndex = 0; splitIndex < splitCount; splitIndex += 1) {
-					let word = splitWords[splitIndex]
-					if (IGNORE_WORDS.includes(word)) {
-						continue
-					}
-					if (splitIndex < splitCount - 1) {
-						let combineCount = 0
-						const nextWord = splitWords[splitIndex + 1]
-						let separator
-						if (!isNaN(word)) {
-							combineCount = 1
-							separator = ' '
-						} else if (PREFIX_WORDS.includes(word)) {
-							separator = ' '
-							combineCount = PREFIX_WORDS.includes(nextWord) ? 2 : 1
-						} else if (SUFFIX_WORDS.includes(nextWord)) {
-							separator = '-'
-							combineCount = 1
-						}
-						if (combineCount > 0) {
-							for (let combineIndex = 0; splitIndex < splitCount && combineIndex < combineCount; combineIndex += 1) {
-								splitIndex += 1
-								word = `${word}${separator || ''}${nextWord}`
-							}
-							continue
-						}
-					}
-					if (word[0] === '@') {
-						word = word.slice(1)
-					}
-
-					if (word.length > 1) {
-						words.add(word)
-					}
-				}
-			}
+			textArray.push(string)
+			characterCount += stringLen
 		} else if (tagName === 'A') {
 			// console.log('Ignore links', child)
 		} else {
 			console.log('Unknown chat tag:', tagName, child)
 		}
 	}
+
+	const longText = characterCount >= 20
+	let lastIndex = textArray.length - 1
+	const lastString = textArray[lastIndex]
+	if (longText) { // Remove trailing numbers circumventing r9k
+		const splitWords = lastString.split(' ')
+		const wordCount = splitWords.length
+		const lastWord = splitWords[wordCount - 1]
+		if (lastWord.length <= 1) {
+			if (wordCount === 1) {
+				lastIndex -= 1
+			} else {
+				splitWords.pop()
+				textArray[lastIndex] = splitWords.join(' ')
+			}
+		}
+	}
+	let previousString = null
+	const result = []
+	for (let idx = 0; idx <= lastIndex; idx += 1) {
+		let textString = textArray[idx]
+		if (textString === previousString) {
+			continue
+		}
+		if (longText && idx === lastIndex) {
+			textString = textString.replace(TRAILING_PERIODS_REGEX, '')
+		}
+		previousString = textString
+		result.push(textString)
+
+		const splitWords = textString.split(' ')
+		let isSpacedLetters = true
+		for (const word of splitWords) {
+			if (word.length > 1) {
+				isSpacedLetters = false
+				break
+			}
+		}
+		if (isSpacedLetters) {
+			words.add(splitWords.join(''))
+			continue
+		}
+		words.add(textString)
+
+		const splitCount = splitWords.length
+		if (splitCount > 1) {
+			for (let splitIndex = 0; splitIndex < splitCount; splitIndex += 1) {
+				let word = splitWords[splitIndex]
+				if (IGNORE_WORDS.includes(word)) {
+					continue
+				}
+				if (splitIndex < splitCount - 1) {
+					let combineCount = 0
+					const nextWord = splitWords[splitIndex + 1]
+					let separator
+					if (!isNaN(word)) {
+						combineCount = 1
+						separator = ' '
+					} else if (PREFIX_WORDS.includes(word)) {
+						separator = ' '
+						combineCount = PREFIX_WORDS.includes(nextWord) ? 2 : 1
+					} else if (SUFFIX_WORDS.includes(nextWord)) {
+						separator = '-'
+						combineCount = 1
+					}
+					if (combineCount > 0) {
+						for (let combineIndex = 0; splitIndex < splitCount && combineIndex < combineCount; combineIndex += 1) {
+							splitIndex += 1
+							word = `${word}${separator || ''}${nextWord}`
+						}
+						continue
+					}
+				}
+				if (word[0] === '@') {
+					word = word.slice(1)
+				}
+
+				if (word.length > 1) {
+					words.add(word)
+				}
+			}
+		}
+	}
+
+	if (longText && result.length > 1) {
+		// console.log(result.join(' '))
+		words.add(result.join(' '))
+	}
+
 	addMessage([ words, emotes ])
 }
 
