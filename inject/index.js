@@ -26,7 +26,10 @@ const sidebarObserver = new window.MutationObserver((mutations, observing) => {
 					const messageDataArray = populateMessageData()
 					const messagesPerSecond = messagesPerSecondInLast(30, timestamp)
 					// console.timeEnd('populateMessageData')
-					document.getElementById('_hype-mps').innerText = messagesPerSecond.toFixed(1)
+					const mps = document.getElementById('_hype-mps')
+					if (mps) {
+						mps.innerText = messagesPerSecond.toFixed(1)
+					}
 
 					for (let idx = 0; idx < BOX_COUNT; idx += 1) {
 						const boxEl = hypeBoxes[idx]
