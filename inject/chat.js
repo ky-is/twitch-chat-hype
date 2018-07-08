@@ -4,10 +4,10 @@ let startIndex = 0
 let messagesSinceUpdate = 0
 let messageTimestamps = []
 
-const MAX_MESSAGE_COUNT = 70
+const MAX_MESSAGE_COUNT = 50
 const MESSAGE_POWER = 3
-const PERFECT_SCORE = 6175225 //SAMPLE 60:3348900 70:6175225 80:10497600 99:24502500
-// let newPerfectScore = 0
+const PERFECT_SCORE = 1625625
+// let newPerfectScore = 0 //SAMPLE
 // for (let idx = 0; idx < MAX_MESSAGE_COUNT; idx += 1) {
 //   newPerfectScore += Math.pow(idx + 1, MESSAGE_POWER)
 // }
