@@ -88,6 +88,8 @@ const parseMessageContainer = function(messageContainer, liveChannel) {
 			characterCount += stringLen
 		} else if (tagName === 'A') {
 			// console.log('Ignore links', child)
+		} else if (tagName === 'DIV' && child.querySelector('.chat-card__link')) {
+			// console.log('Ignore embeds', child)
 		} else {
 			console.log('Unknown chat tag:', tagName, child)
 		}
