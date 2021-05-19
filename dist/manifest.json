@@ -1,0 +1,25 @@
+{
+	"manifest_version": 2,
+	"name": "Twitch Chat Hype",
+	"version": "1.0",
+	"description": "Displays the most-used Twitch chat emotes in Theatre Mode.",
+	"browser_action": {
+		"default_icon": "images/icon-off.png"
+	},
+	"icons": {
+		"128": "images/icon-on.png"
+	},
+	"background": {
+		"persistent": false,
+		"scripts": ["generated/background.js"]
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://www.twitch.tv/*", "*://twitch.tv/*"],
+			"css": ["generated/inject.css"],
+			"js": [ "generated/inject.js"]
+		}
+	],
+	"permissions": [
+	]
+}

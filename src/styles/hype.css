@@ -1,5 +1,6 @@
-body:not(._hype-off) .video-player--theatre video {
-	position: unset !important;
+body:not(._hype-off) .video-player__container--theatre video {
+	position: static !important;
+	height: auto !important;
 }
 
 #_hype {
@@ -7,7 +8,7 @@ body:not(._hype-off) .video-player--theatre video {
 	pointer-events: none;
 }
 
-body:not(._hype-off) .video-player--theatre #_hype {
+body:not(._hype-off) .video-player__container--theatre #_hype {
 	display: block;
 	position: absolute;
 	width: 100%;

@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "esnext",
+		"module": "esnext",
+		"moduleResolution": "node",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"types": ["chrome"],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+		},
+		"outDir": "./dist/generated",
+	},
+	"include": [
+		"src/scripts/background.ts",
+		"src/scripts/inject.ts",
+	],
+}
