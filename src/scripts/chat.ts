@@ -35,13 +35,12 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 	const emotes = new Set<string>()
 	const textFragments = new Set<string>()
 	for (const child of messageChildren) {
-		const targetName = child.getAttribute(isLiveChannel ? 'data-test-selector' : 'data-a-target')
-		if (targetName === (isLiveChannel ? 'TODO' : 'chat-message-text')) {
+		if (child.className === 'text-fragment') {
 			const text = (child as HTMLElement).innerText.trim()
 			if (text) {
 				textFragments.add(text)
 			}
-		} else if (targetName === (isLiveChannel ? 'emote-button' : 'emote-name')) {
+		} else if (child.getAttribute(isLiveChannel ? 'data-test-selector' : 'data-a-target') === (isLiveChannel ? 'emote-button' : 'emote-name')) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
 			if (!emoteContainer) {
 				console.log('Unknown emote container', child)
