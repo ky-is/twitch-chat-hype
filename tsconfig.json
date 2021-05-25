@@ -5,7 +5,6 @@
 		"module": "esnext",
 		"moduleResolution": "node",
 		"lib": ["dom", "dom.iterable", "esnext"],
-		"types": ["chrome"],
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"],
