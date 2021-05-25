@@ -1,9 +1,10 @@
-let userChatMessages: Set<string>[] = []
+let userChatMessages: [Set<string>, Set<string>?][] = []
 let userMessageCount = 0
 let startIndex = 0
 let messageTimestamps: number[] = []
 
 const MAX_MESSAGE_COUNT = 50
+const MIN_SCORE = MAX_MESSAGE_COUNT + 1
 const PERFECT_SCORE = MAX_MESSAGE_COUNT * (MAX_MESSAGE_COUNT + 1) / 2
 
 export function resetMessages() {
@@ -15,16 +16,14 @@ export function resetMessages() {
 
 //CHAT
 
-function appendMessageData(emotes: Set<string>) {
-	if (emotes.size) {
-		if (userMessageCount < MAX_MESSAGE_COUNT) {
-			userMessageCount += 1
-		} else {
-			delete userChatMessages[startIndex]
-			startIndex += 1
-		}
-		userChatMessages.push(emotes)
+function appendMessageData(emotes: Set<string>, textFragments?: Set<string>) {
+	if (userMessageCount < MAX_MESSAGE_COUNT) {
+		userMessageCount += 1
+	} else {
+		delete userChatMessages[startIndex]
+		startIndex += 1
 	}
+	userChatMessages.push([emotes, textFragments])
 	messageTimestamps.push(Date.now())
 }
 
@@ -34,9 +33,15 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 		return
 	}
 	const emotes = new Set<string>()
+	const textFragments = new Set<string>()
 	for (const child of messageChildren) {
 		const targetName = child.getAttribute(isLiveChannel ? 'data-test-selector' : 'data-a-target')
-		if (targetName === (isLiveChannel ? 'emote-button' : 'emote-name')) {
+		if (targetName === (isLiveChannel ? 'TODO' : 'chat-message-text')) {
+			const text = (child as HTMLElement).innerText.trim()
+			if (text) {
+				textFragments.add(text)
+			}
+		} else if (targetName === (isLiveChannel ? 'emote-button' : 'emote-name')) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
 			if (!emoteContainer) {
 				console.log('Unknown emote container', child)
@@ -53,7 +58,9 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 			emotes.add(`${emoteContainer.alt},${emoteId}`)
 		}
 	}
-	appendMessageData(emotes)
+	if (emotes.size || textFragments.size) {
+		appendMessageData(emotes, textFragments.size ? textFragments : undefined)
+	}
 }
 
 //POPULATE
@@ -81,32 +88,38 @@ export function messagesPerSecondInLast(seconds: number, timestamp: number) {
 	return messageCount / secondsAgo
 }
 
-function sortMessageScores(a: any, b: any) {
-	return b[1] - a[1]
-}
+type MessageScores = {[emote: string]: number}
+type MessageResult = [score: number, primaryMessage: string, messages?: MessageScores]
 
-export function populateMessageData() {
-	const scoresByMessage: {[message: string]: [score: number, hasMultiple: boolean]} = {}
+export function calculateMessageData(maximumEntries: number) {
+	const scoreForEmotes: MessageScores = {}
+	const scoreForMessages: MessageScores = {}
 	for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
-		const score = idx - startIndex
-		const messageArray = userChatMessages[idx]
-		for (const messageText of messageArray) {
-				const messageData = scoresByMessage[messageText]
-				if (messageData) {
-					messageData[0] += score
-					messageData[1] = true
-				} else {
-					scoresByMessage[messageText] = [ score, false ]
-				}
+		const score = idx - startIndex + 1
+		const [emotes, textFragments] = userChatMessages[idx]
+		for (const emote of emotes) {
+			scoreForEmotes[emote] = (scoreForEmotes[emote] ?? 0) + score
+		}
+		if (textFragments) {
+			for (const textFragment of textFragments) {
+				scoreForMessages[textFragment] = (scoreForMessages[textFragment] ?? 0) + score
+			}
 		}
 	}
-	let result: [string, number][] = []
-	for (const message in scoresByMessage) {
-		const messageData = scoresByMessage[message]
-		if (messageData[1]) {
-			result.push([ message, messageData[0] / PERFECT_SCORE ])
+	let result: MessageResult[] = []
+	for (const emote in scoreForEmotes) {
+		const score = scoreForEmotes[emote]
+		if (score >= MIN_SCORE) {
+			result.push([ score / PERFECT_SCORE, emote, {} ])
 		}
 	}
-	result.sort(sortMessageScores)
+	for (const message in scoreForMessages) {
+		const score = scoreForMessages[message]
+		if (score >= MIN_SCORE) {
+			result.push([ score / PERFECT_SCORE, message, undefined ])
+		}
+	}
 	return result
+		.sort((lhs, rhs) => rhs[0] - lhs[0])
+		.slice(0, maximumEntries)
 }

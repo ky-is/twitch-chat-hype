@@ -1,7 +1,7 @@
 import '@/styles/hype.css'
 
 import { injectTwitchPageOnBehalfOf } from '@ky-is/twitch-extension-channel-manager/inject'
-import { addMessage, messagesPerSecondInLast, populateMessageData, resetMessages } from './chat'
+import { addMessage, messagesPerSecondInLast, calculateMessageData, resetMessages } from './chat'
 
 const BOX_COUNT = 6
 
@@ -14,9 +14,14 @@ let lastUpdateTimestamp = Date.now()
 const sidebarObserver = new window.MutationObserver((mutations) => {
 	for (const mutation of mutations) {
 		for (const chatNode of mutation.addedNodes) {
-			const messageEl = (chatNode as Element).querySelector(isLiveChannel ? '.chat-line__no-background > *:last-child' : '.video-chat__message > span:last-child')
+			const chatEl = chatNode as HTMLElement
+			const badge = chatEl.querySelector('.chat-badge')
+			if (badge?.getAttribute('aria-label') === 'Moderator badge') {
+				continue
+			}
+			const messageEl = chatEl.querySelector(isLiveChannel ? '.chat-line__no-background > *:last-child' : '.video-chat__message > span:last-child')
 			if (!messageEl) {
-				// if (!(chatNode as Element).classList.contains('chat-line__status')) {
+				// if (!chatEl.classList.contains('chat-line__status')) {
 				// 	console.log('No element for node', isLiveChannel, chatNode)
 				// }
 				continue
@@ -27,12 +32,12 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 
 	if (hypeBoxes) {
 		const timestamp = Date.now()
-		if (timestamp - lastUpdateTimestamp < 2) {
+		if (timestamp - lastUpdateTimestamp < 4) {
 			return
 		}
 		lastUpdateTimestamp = timestamp
 
-		const messageDataArray = populateMessageData()
+		const messageDataArray = calculateMessageData(BOX_COUNT)
 		const mpsEl = document.getElementById('_hype-mps')
 		if (mpsEl) {
 			mpsEl.innerText = messagesPerSecondInLast(15, timestamp).toFixed(1)
@@ -44,14 +49,12 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 			let titleText, titleUrl, scoreText
 			const titleEl = boxEl.children[0] as HTMLElement
 			const scoreEl = boxEl.children[1] as HTMLElement
-			if (!boxData || boxData[1] < 0.025) {
-				titleText = ''
-				scoreText = ''
-			} else {
-				const title = boxData[0]
-				const score = boxData[1]
-				const emoteInfo = title.split(',')
-				if (emoteInfo[1]) {
+			if (boxData) {
+				const score = boxData[0]
+				const title = boxData[1]
+				const messages = boxData[2]
+				if (messages !== undefined) {
+					const emoteInfo = title.split(',')
 					titleUrl = `url(https://static-cdn.jtvnw.net/emoticons/v1/${emoteInfo[1]}/3.0)`
 				} else {
 					titleText = title
@@ -63,9 +66,9 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 				scoreEl.style.color = `hsl(${hue}, ${saturation}%, 50%)`
 				scoreEl.style.fontWeight = weight.toString()
 			}
-			titleEl.style.backgroundImage = titleUrl || ''
-			titleEl.innerText = titleText || ''
-			scoreEl.innerText = scoreText
+			titleEl.style.backgroundImage = titleUrl ?? ''
+			titleEl.innerText = titleText ?? ''
+			scoreEl.innerText = scoreText ?? ''
 		}
 	}
 })
