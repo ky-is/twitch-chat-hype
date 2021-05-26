@@ -1,4 +1,4 @@
-import '@/styles/hype.css'
+import '../styles/hype.css'
 
 import { injectTwitchPageOnBehalfOf } from '@ky-is/twitch-extension-channel-manager/inject'
 import { addMessage, messagesPerSecondInLast, calculateMessageData, resetMessages } from './chat'
