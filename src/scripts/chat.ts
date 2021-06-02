@@ -38,7 +38,7 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 		if (child.className === 'text-fragment') {
 			const text = (child as HTMLElement).innerText.trim()
 			if (text) {
-				textFragments.add(text)
+				textFragments.add(text.toLowerCase())
 			}
 		} else if (child.getAttribute(isLiveChannel ? 'data-test-selector' : 'data-a-target') === (isLiveChannel ? 'emote-button' : 'emote-name')) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
@@ -88,7 +88,11 @@ export function messagesPerSecondInLast(seconds: number, timestamp: number) {
 }
 
 type MessageScores = {[emote: string]: number}
-type MessageResult = [score: number, primaryMessage: string, messages?: MessageScores]
+type MessageResult = [primaryMessage: string, score: number, messages?: string[]]
+
+function sortByScore(lhs: MessageResult, rhs: MessageResult) {
+	return rhs[1] - lhs[1]
+}
 
 export function calculateMessageData(maximumEntries: number) {
 	const scoreForEmotes: MessageScores = {}
@@ -105,20 +109,23 @@ export function calculateMessageData(maximumEntries: number) {
 			}
 		}
 	}
-	let result: MessageResult[] = []
+	let results: MessageResult[] = []
 	for (const emote in scoreForEmotes) {
 		const score = scoreForEmotes[emote]
 		if (score >= MIN_SCORE) {
-			result.push([ score / PERFECT_SCORE, emote, {} ])
+			results.push([ emote, score / PERFECT_SCORE, [] ])
 		}
 	}
 	for (const message in scoreForMessages) {
 		const score = scoreForMessages[message]
 		if (score >= MIN_SCORE) {
-			result.push([ score / PERFECT_SCORE, message, undefined ])
+			results.push([ message, score / PERFECT_SCORE, undefined ])
 		}
 	}
 	return result
 		.sort((lhs, rhs) => rhs[0] - lhs[0])
+	results = results
+		.sort(sortByScore)
 		.slice(0, maximumEntries)
+	return results
 }

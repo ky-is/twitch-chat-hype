@@ -50,8 +50,8 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 			const titleEl = boxEl.children[0] as HTMLElement
 			const scoreEl = boxEl.children[1] as HTMLElement
 			if (boxData) {
-				const score = boxData[0]
-				const title = boxData[1]
+				const title = boxData[0]
+				const score = boxData[1]
 				const messages = boxData[2]
 				if (messages !== undefined) {
 					const emoteInfo = title.split(',')
@@ -76,6 +76,7 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 function injectHype() {
 	let hypeEl = document.getElementById('_hype')
 	if (!hypeEl) {
+		hypeBoxes = null
 		const videoContainer = document.querySelector('.video-player__container')
 		if (videoContainer) {
 			hypeEl = document.createElement('div')
@@ -85,13 +86,7 @@ function injectHype() {
 			for (let idx = 0; idx < BOX_COUNT; idx += 1) {
 				const messageBox = document.createElement('div')
 				messageBox.className = '_hype-box'
-				const titleDiv = document.createElement('div')
-				const scoreDiv = document.createElement('div')
-				titleDiv.className = '_hype-title'
-				scoreDiv.className = '_hype-score'
-				messageBox.appendChild(titleDiv)
-				messageBox.appendChild(scoreDiv)
-				messageBox.appendChild(document.createElement('div'))
+				messageBox.innerHTML = '<div class="_hype-title"></div><div class="_hype-score"></div>'
 				hypeContainer.appendChild(messageBox)
 			}
 			hypeEl.appendChild(hypeContainer)
