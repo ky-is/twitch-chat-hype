@@ -27,6 +27,9 @@ function appendMessageData(emotes: Set<string>, textFragments?: Set<string>) {
 	messageTimestamps.push(Date.now())
 }
 
+const R_REPEAT_CHARS = /(.)\1{3,}/g
+const R_ENDING_BASIC_PUNCTUATION = /[\.,]+$/g
+
 export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 	const messageChildren = messageEl.children
 	if (!messageChildren) {
@@ -36,7 +39,10 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 	const textFragments = new Set<string>()
 	for (const child of messageChildren) {
 		if (child.className === 'text-fragment') {
-			const text = (child as HTMLElement).innerText.trim()
+			let text = (child as HTMLElement).innerText.replace(R_REPEAT_CHARS, '$1$1$1').trim()
+			if (!text.endsWith('...')) {
+				text = text.replace(R_ENDING_BASIC_PUNCTUATION, '')
+			}
 			if (text) {
 				textFragments.add(text.toLowerCase())
 			}
