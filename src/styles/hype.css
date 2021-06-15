@@ -31,7 +31,6 @@ body:not(._hype-off) .video-player__container--theatre #_hype {
 	font-variant: small-caps !important;
 	letter-spacing: 1px !important;
 	font-size: 32px !important;
-
 	line-height: 56px !important;
 	min-width: 56px;
 	height: 56px;

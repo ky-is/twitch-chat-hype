@@ -128,8 +128,6 @@ export function calculateMessageData(maximumEntries: number) {
 			results.push([ message, score / PERFECT_SCORE, undefined ])
 		}
 	}
-	return result
-		.sort((lhs, rhs) => rhs[0] - lhs[0])
 	results = results
 		.sort(sortByScore)
 		.slice(0, maximumEntries)
