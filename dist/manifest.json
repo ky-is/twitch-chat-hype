@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Twitch Chat Hype",
-	"version": "2.1",
+	"version": "2.2",
 	"description": "Displays the most-used Twitch chat emotes in Theatre Mode.",
 	"browser_action": {
 		"default_icon": "images/icon-off.png"
