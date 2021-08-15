@@ -37,7 +37,16 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 	}
 	const emotes = new Set<string>()
 	const textFragments = new Set<string>()
-	for (const child of messageChildren) {
+	const queryAttributeName = isLiveChannel ? 'data-test-selector' : 'data-a-target'
+	const queryEmoteName = isLiveChannel ? 'emote-button' : 'emote-name'
+	for (let child of messageChildren) {
+		if (!child.hasAttribute(queryAttributeName)) {
+			const newChild = child.children.item(0)
+			if (!newChild) {
+				continue
+			}
+			child = newChild
+		}
 		if (child.className === 'text-fragment') {
 			let text = (child as HTMLElement).innerText.replace(R_REPEAT_CHARS, '$1$1$1').trim()
 			if (!text.endsWith('...')) {
@@ -46,7 +55,7 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 			if (text) {
 				textFragments.add(text.toLowerCase())
 			}
-		} else if (child.getAttribute(isLiveChannel ? 'data-test-selector' : 'data-a-target') === (isLiveChannel ? 'emote-button' : 'emote-name')) {
+		} else if (child.getAttribute(queryAttributeName) === queryEmoteName) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
 			if (!emoteContainer) {
 				console.log('Unknown emote container', child)
@@ -58,9 +67,13 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 				continue
 			}
 			const urlSegments = emoteUrl.split('/')
-			const emoteId = parseInt(urlSegments[urlSegments.length - 4])
+			const emoteID = urlSegments[5]
+			if (!emoteID) {
+				console.log('Unknown emote id', urlSegments)
+				continue
+			}
+			emotes.add(`${emoteContainer.alt},${emoteID}`)
 			// console.log(emoteContainer.alt, emoteId, urlSegments) //SAMPLE
-			emotes.add(`${emoteContainer.alt},${emoteId}`)
 		}
 	}
 	if (emotes.size || textFragments.size) {

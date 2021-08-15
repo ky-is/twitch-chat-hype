@@ -55,7 +55,7 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 				const messages = boxData[2]
 				if (messages !== undefined) {
 					const emoteInfo = title.split(',')
-					titleUrl = `url(https://static-cdn.jtvnw.net/emoticons/v1/${emoteInfo[1]}/3.0)`
+					titleUrl = `url(https://static-cdn.jtvnw.net/emoticons/v2/${emoteInfo[1]}/default/dark/3.0)`
 				} else {
 					titleText = title
 				}
