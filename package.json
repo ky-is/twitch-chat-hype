@@ -29,12 +29,6 @@
 		"extends": "@ky-is/eslint-config/typescript",
 		"env": {
 			"webextensions": true
-		},
-		"rules": {
-			"@typescript-eslint/consistent-type-imports": {
-				"prefer": "type-imports",
-				"disallowTypeAnnotations": true
-			}
 		}
 	},
 	"eslintIgnore": [
