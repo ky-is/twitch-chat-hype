@@ -19,7 +19,7 @@ const sidebarObserver = new window.MutationObserver((mutations) => {
 			if (badge?.getAttribute('aria-label') === 'Moderator badge') {
 				continue
 			}
-			const messageEl = chatEl.querySelector(isLiveChannel ? '.chat-line__no-background > *:last-child' : '.video-chat__message > span:last-child')
+			const messageEl = chatEl.querySelector(isLiveChannel ? '.chat-line__no-background > *:last-child' : '.video-chat__message > span:last-child') as HTMLElement
 			if (!messageEl) {
 				// if (!chatEl.classList.contains('chat-line__status')) {
 				// 	console.log('No element for node', isLiveChannel, chatNode)

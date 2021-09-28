@@ -1,4 +1,4 @@
-let userChatMessages: [Set<string>, Set<string>?][] = []
+let userChatMessages: [HTMLElement, Set<string>, [string, string][]?][] = []
 let userMessageCount = 0
 let startIndex = 0
 let messageTimestamps: number[] = []
@@ -16,27 +16,28 @@ export function resetMessages() {
 
 //CHAT
 
-function appendMessageData(emotes: Set<string>, textFragments?: Set<string>) {
+function appendMessageData(messageEl: HTMLElement, emotes: Set<string>, textFragments?: [string, string][]) {
 	if (userMessageCount < MAX_MESSAGE_COUNT) {
 		userMessageCount += 1
 	} else {
 		delete userChatMessages[startIndex]
 		startIndex += 1
 	}
-	userChatMessages.push([emotes, textFragments])
+	userChatMessages.push([messageEl, emotes, textFragments])
 	messageTimestamps.push(Date.now())
 }
 
-const R_REPEAT_CHARS = /(.)\1{3,}/g
-const R_ENDING_BASIC_PUNCTUATION = /[\.,]+$/g
+const R_HAS_LETTER = /\w/
+const R_PUNCTUATION_CHARS = /\W/g
+const R_REPEATED_CHARS = /(.)\1+/g
 
-export function addMessage(messageEl: Element, isLiveChannel: boolean) {
+export function addMessage(messageEl: HTMLElement, isLiveChannel: boolean) {
 	const messageChildren = messageEl.children
 	if (!messageChildren) {
 		return
 	}
 	const emotes = new Set<string>()
-	const textFragments = new Set<string>()
+	const textFragments = new Map<string, string>()
 	const queryAttributeName = isLiveChannel ? 'data-test-selector' : 'data-a-target'
 	const queryEmoteName = isLiveChannel ? 'emote-button' : 'emote-name'
 	for (let child of messageChildren) {
@@ -48,12 +49,20 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 			child = newChild
 		}
 		if (child.className === 'text-fragment') {
-			let text = (child as HTMLElement).innerText.replace(R_REPEAT_CHARS, '$1$1$1').trim()
-			if (!text.endsWith('...')) {
-				text = text.replace(R_ENDING_BASIC_PUNCTUATION, '')
+			const text = (child as HTMLElement).innerText.trim()
+			if (!text) {
+				continue
 			}
-			if (text) {
-				textFragments.add(text.toLowerCase())
+			let key = text
+			if (R_HAS_LETTER.test(text)) {
+				key = key.replace(R_PUNCTUATION_CHARS, '').toLowerCase()
+			}
+			key = key.replace(R_REPEATED_CHARS, '$1')
+			if (key) {
+				if (key.length > 50) {
+					key = key.substr(1, 48)
+				}
+				textFragments.set(key, text)
 			}
 		} else if (child.getAttribute(queryAttributeName) === queryEmoteName) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
@@ -77,7 +86,7 @@ export function addMessage(messageEl: Element, isLiveChannel: boolean) {
 		}
 	}
 	if (emotes.size || textFragments.size) {
-		appendMessageData(emotes, textFragments.size ? textFragments : undefined)
+		appendMessageData(messageEl, emotes, textFragments.size ? Array.from(textFragments.entries()) : undefined)
 	}
 }
 
@@ -107,6 +116,7 @@ export function messagesPerSecondInLast(seconds: number, timestamp: number) {
 }
 
 type MessageScores = {[emote: string]: number}
+type MessageTextScores = {[emote: string]: [number, string]}
 type MessageResult = [primaryMessage: string, score: number, messages?: string[]]
 
 function sortByScore(lhs: MessageResult, rhs: MessageResult) {
@@ -115,16 +125,23 @@ function sortByScore(lhs: MessageResult, rhs: MessageResult) {
 
 export function calculateMessageData(maximumEntries: number) {
 	const scoreForEmotes: MessageScores = {}
-	const scoreForMessages: MessageScores = {}
+	const scoreForMessages: MessageTextScores = {}
 	for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
 		const score = idx - startIndex + 1
-		const [emotes, textFragments] = userChatMessages[idx]
+		const [messageEl, emotes, textFragments] = userChatMessages[idx]
 		for (const emote of emotes) {
 			scoreForEmotes[emote] = (scoreForEmotes[emote] ?? 0) + score
 		}
 		if (textFragments) {
-			for (const textFragment of textFragments) {
-				scoreForMessages[textFragment] = (scoreForMessages[textFragment] ?? 0) + score
+			for (const [key, textFragment] of textFragments) {
+				if (!scoreForMessages[key]) {
+					scoreForMessages[key] = [score, textFragment]
+				} else {
+					scoreForMessages[key][0] += score
+					if (textFragment.length > 16 && scoreForMessages[key][0] >= MIN_SCORE * 2) {
+						messageEl.innerHTML = '<span class="_hype-hyped">&#60;hype&#62;</span>'
+					}
+				}
 			}
 		}
 	}
@@ -135,10 +152,10 @@ export function calculateMessageData(maximumEntries: number) {
 			results.push([ emote, score / PERFECT_SCORE, [] ])
 		}
 	}
-	for (const message in scoreForMessages) {
-		const score = scoreForMessages[message]
+	for (const key in scoreForMessages) {
+		const [score, text] = scoreForMessages[key]
 		if (score >= MIN_SCORE) {
-			results.push([ message, score / PERFECT_SCORE, undefined ])
+			results.push([ text, score / PERFECT_SCORE, undefined ])
 		}
 	}
 	results = results

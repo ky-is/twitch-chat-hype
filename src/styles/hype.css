@@ -51,3 +51,7 @@ body:not(._hype-off) .video-player__container--theatre #_hype {
 #_hype-stats > span {
 	color: #ccc;
 }
+
+._hype-hyped {
+	color: rgb(169, 145, 212) !important;
+}
