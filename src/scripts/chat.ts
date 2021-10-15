@@ -1,4 +1,6 @@
-let userChatMessages: [HTMLElement, Set<string>, [string, string][]?][] = []
+type KeyText = [key: string, text: string]
+
+let userChatMessages: [HTMLElement, Set<string>, KeyText?][] = []
 let userMessageCount = 0
 let startIndex = 0
 let messageTimestamps: number[] = []
@@ -16,14 +18,14 @@ export function resetMessages() {
 
 //CHAT
 
-function appendMessageData(messageEl: HTMLElement, emotes: Set<string>, textFragments?: [string, string][]) {
+function appendMessageData(messageEl: HTMLElement, emotes: Set<string>, keyText?: KeyText) {
 	if (userMessageCount < MAX_MESSAGE_COUNT) {
 		userMessageCount += 1
 	} else {
 		delete userChatMessages[startIndex]
 		startIndex += 1
 	}
-	userChatMessages.push([messageEl, emotes, textFragments])
+	userChatMessages.push([messageEl, emotes, keyText])
 	messageTimestamps.push(Date.now())
 }
 
@@ -31,13 +33,25 @@ const R_HAS_LETTER = /\w/
 const R_PUNCTUATION_CHARS = /\W/g
 const R_REPEATED_CHARS = /(.)\1+/g
 
+function getKeyFrom(text: string) {
+	let key = text
+	if (R_HAS_LETTER.test(text)) {
+		key = key.replace(R_PUNCTUATION_CHARS, '').toLowerCase()
+	}
+	key = key.replace(R_REPEATED_CHARS, '$1')
+	if (key.length > 50) {
+		key = key.substr(1, 48)
+	}
+	return key
+}
+
 export function addMessage(messageEl: HTMLElement, isLiveChannel: boolean) {
 	const messageChildren = messageEl.children
 	if (!messageChildren) {
 		return
 	}
 	const emotes = new Set<string>()
-	const textFragments = new Map<string, string>()
+	const textFragments = new Set<string>()
 	const queryAttributeName = isLiveChannel ? 'data-test-selector' : 'data-a-target'
 	const queryEmoteName = isLiveChannel ? 'emote-button' : 'emote-name'
 	for (let child of messageChildren) {
@@ -50,20 +64,10 @@ export function addMessage(messageEl: HTMLElement, isLiveChannel: boolean) {
 		}
 		if (child.className === 'text-fragment') {
 			const text = (child as HTMLElement).innerText.trim()
-			if (!text) {
+			if (!text.length) {
 				continue
 			}
-			let key = text
-			if (R_HAS_LETTER.test(text)) {
-				key = key.replace(R_PUNCTUATION_CHARS, '').toLowerCase()
-			}
-			key = key.replace(R_REPEATED_CHARS, '$1')
-			if (key) {
-				if (key.length > 50) {
-					key = key.substr(1, 48)
-				}
-				textFragments.set(key, text)
-			}
+			textFragments.add(text)
 		} else if (child.getAttribute(queryAttributeName) === queryEmoteName) {
 			const emoteContainer = child.querySelector('img') as HTMLImageElement
 			if (!emoteContainer) {
@@ -85,8 +89,10 @@ export function addMessage(messageEl: HTMLElement, isLiveChannel: boolean) {
 			// console.log(emoteContainer.alt, emoteId, urlSegments) //SAMPLE
 		}
 	}
-	if (emotes.size || textFragments.size) {
-		appendMessageData(messageEl, emotes, textFragments.size ? Array.from(textFragments.entries()) : undefined)
+	const text = Array.from(textFragments.values()).join(' ')
+	const key = getKeyFrom(text)
+	if (emotes.size || key.length) {
+		appendMessageData(messageEl, emotes, key.length ? [key, text] : undefined)
 	}
 }
 
@@ -128,19 +134,18 @@ export function calculateMessageData(maximumEntries: number) {
 	const scoreForMessages: MessageTextScores = {}
 	for (let idx = startIndex; idx < startIndex + userMessageCount; idx += 1) {
 		const score = idx - startIndex + 1
-		const [messageEl, emotes, textFragments] = userChatMessages[idx]
+		const [messageEl, emotes, keyText] = userChatMessages[idx]
 		for (const emote of emotes) {
 			scoreForEmotes[emote] = (scoreForEmotes[emote] ?? 0) + score
 		}
-		if (textFragments) {
-			for (const [key, textFragment] of textFragments) {
-				if (!scoreForMessages[key]) {
-					scoreForMessages[key] = [score, textFragment]
-				} else {
-					scoreForMessages[key][0] += score
-					if (textFragment.length > 16 && scoreForMessages[key][0] >= MIN_SCORE * 2) {
-						messageEl.innerHTML = '<span class="_hype-hyped">&#60;hype&#62;</span>'
-					}
+		if (keyText) {
+			const [key, text] = keyText
+			if (!scoreForMessages[key]) {
+				scoreForMessages[key] = [score, text]
+			} else {
+				scoreForMessages[key][0] += score
+				if (text.length > 16 && scoreForMessages[key][0] >= MIN_SCORE * 2) {
+					messageEl.innerHTML = '<span class="_hype-hyped">&#60;hype&#62;</span>'
 				}
 			}
 		}
