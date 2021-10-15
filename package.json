@@ -1,6 +1,6 @@
 {
 	"name": "twitch-chat-hype",
-	"version": "2.3.0",
+	"version": "2.4.0",
 	"author": "Kyle Coburn",
 	"description": "Chrome Extension to display most-used Twitch chat emotes in Theatre Mode.",
 	"license": "ISC",
