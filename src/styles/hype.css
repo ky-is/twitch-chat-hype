@@ -1,8 +1,3 @@
-body:not(._hype-off) .video-player__container--theatre video {
-	position: static !important;
-	height: auto !important;
-}
-
 #_hype {
 	display: none;
 	pointer-events: none;
@@ -12,9 +7,6 @@ body:not(._hype-off) .video-player__container--theatre #_hype {
 	display: block;
 	position: absolute;
 	width: 100%;
-}
-.player-alert {
-	z-index: 1;
 }
 
 #_hype-container {

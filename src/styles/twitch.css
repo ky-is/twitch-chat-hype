@@ -1,0 +1,12 @@
+body:not(._hype-off) .video-player__container--theatre video {
+	position: static !important;
+	height: auto !important;
+}
+
+body:not(._hype-off) .video-ref {
+	height: auto !important;
+}
+
+.player-alert {
+	z-index: 1;
+}
