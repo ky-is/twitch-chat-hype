@@ -55,38 +55,42 @@ export function addMessage(messageEl: HTMLElement, isLiveChannel: boolean) {
 	const queryAttributeName = isLiveChannel ? 'data-test-selector' : 'data-a-target'
 	const queryEmoteName = isLiveChannel ? 'emote-button' : 'emote-name'
 	for (let child of messageChildren) {
-		if (!child.hasAttribute(queryAttributeName)) {
-			const newChild = child.children.item(0)
-			if (!newChild) {
-				continue
-			}
-			child = newChild
-		}
 		if (child.className === 'text-fragment') {
 			const text = (child as HTMLElement).innerText.trim()
 			if (!text.length) {
 				continue
 			}
 			textFragments.add(text)
-		} else if (child.getAttribute(queryAttributeName) === queryEmoteName) {
-			const emoteContainer = child.querySelector('img') as HTMLImageElement
-			if (!emoteContainer) {
-				console.log('Unknown emote container', child)
-				continue
+		} else {
+			let queryAttr = child.getAttribute(queryAttributeName)
+			if (!queryAttr) {
+				const newChild = child.children.item(0)
+				if (!newChild) {
+					continue
+				}
+				child = newChild
+				queryAttr = child.getAttribute(queryAttributeName)
 			}
-			const emoteUrl = emoteContainer && emoteContainer.src
-			if (!emoteUrl) {
-				console.log('Unknown emote source', child)
-				continue
+			if (queryAttr === queryEmoteName) {
+				const emoteContainer = child.querySelector('img') as HTMLImageElement
+				if (!emoteContainer) {
+					console.log('Unknown emote container', child)
+					continue
+				}
+				const emoteUrl = emoteContainer && emoteContainer.src
+				if (!emoteUrl) {
+					console.log('Unknown emote source', child)
+					continue
+				}
+				const urlSegments = emoteUrl.split('/')
+				const emoteID = urlSegments[5]
+				if (!emoteID) {
+					console.log('Unknown emote id', urlSegments)
+					continue
+				}
+				emotes.add(`${emoteContainer.alt},${emoteID}`)
+				// console.log(emoteContainer.alt, emoteId, urlSegments) //SAMPLE
 			}
-			const urlSegments = emoteUrl.split('/')
-			const emoteID = urlSegments[5]
-			if (!emoteID) {
-				console.log('Unknown emote id', urlSegments)
-				continue
-			}
-			emotes.add(`${emoteContainer.alt},${emoteID}`)
-			// console.log(emoteContainer.alt, emoteId, urlSegments) //SAMPLE
 		}
 	}
 	const text = Array.from(textFragments.values()).join(' ')
