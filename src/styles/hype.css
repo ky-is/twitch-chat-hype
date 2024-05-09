@@ -1,12 +1,12 @@
 #_hype {
-	display: none;
 	pointer-events: none;
-}
-
-body:not(._hype-off) .video-player__container--theatre #_hype {
-	display: block;
 	position: absolute;
 	width: 100%;
+	padding-top: 56.25%;
+}
+
+body._hype-off .video-player__container--theatre #_hype {
+	display: none;
 }
 
 #_hype-container {
