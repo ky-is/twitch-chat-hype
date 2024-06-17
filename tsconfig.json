@@ -9,7 +9,6 @@
 		"outDir": "./dist/generated",
 	},
 	"include": [
-		"src/scripts/background.ts",
-		"src/scripts/inject.ts",
+		"./src/**/*",
 	],
 }
