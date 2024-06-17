@@ -2,7 +2,7 @@
 	pointer-events: none;
 	position: absolute;
 	width: 100%;
-	padding-top: 56.25%;
+	/* padding-top: 56.25%; */
 }
 
 body._hype-off .video-player__container--theatre #_hype {
